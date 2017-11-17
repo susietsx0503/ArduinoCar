@@ -106,35 +106,6 @@ void loop() {
     // int Loffset = abs(Linitial) - abs(Lreal);
     // int Roffset = abs(Rinitial) - abs(Rreal);
 
-
-    // if((Loffset < Lthresh) && (Roffset > Rthresh)) //if the car deviates to the left
-    // {
-    //     {
-    //         analogWrite(left_motor, 150);
-    //         analogWrite(right_motor, 0);
-    //         digitalWrite(RLED, HIGH); 
-    //         delay(100);
-    //     }
-    // }
-    // else if((Loffset > Lthresh) && (Roffset < Rthresh)) //if the car deviates to the right
-    // {
-    // while(Roffset > Rthresh)
-    // {
-    // analogWrite(left_motor, 0);
-    // analogWrite(right_motor, 150);
-    // digitalWrite(BLED, HIGH); 
-    // delay(100);
-    // }
-    // }
-    // else if((Loffset <= Lthresh) && (Roffset <= Rthresh))//not sure
-    // {
-    // stopCar();
-    // }
-    // else 
-    // {
-    // goStraight();
-    // }
-
     if(Lreal < thresh && Rreal > thresh){
         turnRight();
     }
