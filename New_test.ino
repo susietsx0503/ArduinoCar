@@ -12,11 +12,11 @@ int Linitial;  //initial value of differences read by sensor
 int Rinitial;
 int Lreal;  //real value of differences read by sensor when the car moves
 int Rreal;
-int thresh = 200; //threshold value before a car starts to adjust itself
+int thresh = -100; //threshold value before a car starts to adjust itself
 
 int speedOffset = -22; //speed difference between left and right wheers to go straight
-int rmaxSpeed = 150;
-int lmaxSpeed = 150+speedOffset;
+int rmaxSpeed = 255;
+int lmaxSpeed = 255+speedOffset;
 int turnFactor = 0.1;
 
 long aveIR1;  //average value of three IRs when initializing
@@ -109,7 +109,7 @@ void loop() {
     if(Lreal < thresh && Rreal > thresh){
         turnRight();
     }
-    else if (Lreal > thresh && Rreal < thresh){
+    else if (Lreal > thresh && (Rreal < thresh)){
         turnLeft();
     }
     else if (Lreal > thresh && Rreal > thresh){
