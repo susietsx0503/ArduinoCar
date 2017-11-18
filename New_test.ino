@@ -100,6 +100,22 @@ void incStopIntv(){
     }
 }
 
+void print3LEDs(){
+    Serial.print(left);
+    Serial.print(' ');
+    Serial.print(middle);
+    Serial.print(' ');
+    Serial.print(right);
+    Serial.println();
+}
+
+void printDiff(){
+    Serial.print(Lreal - Rreal);
+    Serial.print(' ');
+    Serial.print(Rreal);
+    Serial.println();
+}
+
 // the loop function runs over and over again forever
 void loop() 
 {
@@ -128,16 +144,8 @@ void loop()
         checkStopPoint();
     }
 
-    // Serial.print(Lreal - Rreal);
-    // Serial.print(' ');
-    // Serial.print(Rreal);
-    // Serial.println();
-    Serial.print(left);
-    Serial.print(' ');
-    Serial.print(middle);
-    Serial.print(' ');
-    Serial.print(right);
-    Serial.println();
+    print3LEDs();
+    //printDiff();
 
     delay(100);
 }
