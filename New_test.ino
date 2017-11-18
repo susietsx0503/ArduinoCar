@@ -110,7 +110,7 @@ void print3LEDs(){
 }
 
 void printDiff(){
-    Serial.print(Lreal - Rreal);
+    Serial.print(Lreal);
     Serial.print(' ');
     Serial.print(Rreal);
     Serial.println();
