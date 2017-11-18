@@ -8,15 +8,18 @@ int BLED = 3;  //define LED
 int GLED = 2;
 int RLED = 4;
 
+boolean stopConst = false;
+
+
 int Linitial;  //initial value of differences read by sensor
 int Rinitial;
 int Lreal;  //real value of differences read by sensor when the car moves
 int Rreal;
 int thresh = 200; //threshold value before a car starts to adjust itself
 
-int speedOffset = -22; //speed difference between left and right wheers to go straight
-int rmaxSpeed = 150;
-int lmaxSpeed = 150+speedOffset;
+int speedOffset = 1; //speed difference between left and right wheers to go straight
+int rmaxSpeed = 250;
+int lmaxSpeed = rmaxSpeed*speedOffset;
 int turnFactor = 0.1;
 
 long aveIR1;  //average value of three IRs when initializing
@@ -70,7 +73,6 @@ void turnLeft()
     digitalWrite(BLED, HIGH); 
     digitalWrite(GLED, LOW); 
     digitalWrite(RLED, LOW); 
-    //delay(100);
 }
 
 void turnRight()
@@ -80,7 +82,6 @@ void turnRight()
     digitalWrite(RLED, HIGH); 
     digitalWrite(GLED, LOW); 
     digitalWrite(BLED, LOW); 
-    //delay(100);
 }
 
 void stop()
@@ -94,8 +95,6 @@ void stop()
 
 // the loop function runs over and over again forever
 void loop() {
-    // analogWrite(left_motor, 128);   // offset 22
-    // analogWrite(right_motor, 150);   
     left = analogRead(IR1);
     middle = analogRead(IR2);
     right = analogRead(IR3);
@@ -103,29 +102,31 @@ void loop() {
     Lreal = left - middle;
     Rreal = right - middle;
 
-    // int Loffset = abs(Linitial) - abs(Lreal);
-    // int Roffset = abs(Rinitial) - abs(Rreal);
+    // if(Lreal < thresh && Rreal > thresh){
+    //     turnRight();
+    // }
+    // else if (Lreal > thresh && Rreal < thresh){
+    //     turnLeft();
+    // }
+    // else if (Lreal > thresh && Rreal > thresh){
+    //     goStraight();
+    // }
+    // else{ //both below thresh
+    //     stop();
+    // }
+    goStraight();
 
-    if(Lreal < thresh && Rreal > thresh){
-        turnRight();
-    }
-    else if (Lreal > thresh && Rreal < thresh){
-        turnLeft();
-    }
-    else if (Lreal > thresh && Rreal > thresh){
-        goStraight();
-    }
-    else{ //both below thresh
-        stop();
-    }
-
-    Serial.print(left);
+    Serial.print(Lreal);
     Serial.print(' ');
-    Serial.print(middle);
-    Serial.print(' ');
-    Serial.print(right);
-    Serial.print(' ');
-
+    Serial.print(Rreal);
     Serial.println();
-    //delay(100);
+
+    // Serial.print(left);
+    // Serial.print(' ');
+    // Serial.print(middle);
+    // Serial.print(' ');
+    // Serial.print(right);
+    // Serial.println();
+
+    delay(200);
 }
