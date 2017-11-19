@@ -19,7 +19,7 @@ int absLR;
 //int speedOffset = -2; //speed difference between left and right wheers to go straight
 int rmaxSpeed = 255;
 int lmaxSpeed = 255;
-double turnFactor = 0.5;
+double turnFactor = 0.3;
 
 long aveIR1;  //average value of three IRs when initializing
 long aveIR2;
