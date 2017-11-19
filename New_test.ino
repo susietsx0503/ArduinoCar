@@ -108,7 +108,7 @@ void loop() {
       if (Lreal < thresh && Rreal > thresh) {
         turnRight();
       }
-      else (Lread > thresh && Rreal > thresh){
+      else if (Lreal > thresh && Rreal < thresh){
         turnLeft();
       }
     }
