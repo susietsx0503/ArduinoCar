@@ -4,29 +4,29 @@
 #define IR2 18
 #define IR3 17
 
-int BLED = 3;  //define LED
+int BLED = 3; //define LED
 int GLED = 2;
 int RLED = 4;
 
-int Linitial;  //initial value of differences read by sensor
+boolean stopConst = false;
+int stopSigIntv = -1;
+
+int Linitial; //initial value of differences read by sensor
 int Rinitial;
-int Lreal;  //real value of differences read by sensor when the car moves
-int Rreal;
-int thresh = -100; //threshold value before a car starts to adjust itself
+float Lreal; //real value of differences read by sensor when the car moves
+float Rreal;
+int thresh = -200; //threshold value before a car starts to adjust itself
 
-int speedOffset = -22; //speed difference between left and right wheers to go straight
-int rmaxSpeed = 255;
-int lmaxSpeed = 255+speedOffset;
-int turnFactor = 0.1;
+int speedOffset = 1; //speed difference between left and right wheers to go straight
+int rmaxSpeed = 250;
+int lmaxSpeed = rmaxSpeed*speedOffset;
+float turnFactor; //left and right wheel speed difference by the factor
+float turnFactor0 = 0.8;
 
-long aveIR1;  //average value of three IRs when initializing
-long aveIR2;
-long aveIR3;
-int sample = 150;
+int left, middle, right;
 
-long left, middle, right;
-
-void setup() {
+void setup()
+{
     Serial.begin(9600);
     pinMode(9, OUTPUT);
     pinMode(10, OUTPUT);
@@ -36,23 +36,7 @@ void setup() {
     pinMode(RLED, OUTPUT);
     pinMode(GLED, OUTPUT);
     pinMode(BLED, OUTPUT);
-    for (int k = 0; k < sample; k++){
-        aveIR1 += analogRead(IR1);
-        aveIR2 += analogRead(IR2);
-        aveIR3 += analogRead(IR3);
-    }
-    aveIR1 /= sample;
-    aveIR2 /= sample;
-    aveIR3 /= sample;
-
-    Linitial = aveIR1 - aveIR2;  //get initial value diffeence between three IRs
-    Rinitial = aveIR3 - aveIR2;
 }
-
-
-
-
-
 
 void goStraight()
 {
@@ -65,22 +49,34 @@ void goStraight()
 
 void turnLeft()
 {
+    float fractionTmp = Rreal/1500;
+    float tmp = fractionTmp < 0 ? turnFactor0+fractionTmp : turnFactor0;
+    turnFactor = tmp <= 0 ? 0 : tmp;
+    Serial.print("turnLeft: ");
+    Serial.print(tmp);
+    Serial.print(' ');
+    Serial.println(turnFactor);
     analogWrite(left_motor, lmaxSpeed*turnFactor);
     analogWrite(right_motor, rmaxSpeed);
     digitalWrite(BLED, HIGH); 
     digitalWrite(GLED, LOW); 
     digitalWrite(RLED, LOW); 
-    //delay(100);
 }
 
 void turnRight()
 {
+    float fractionTmp = Lreal/1500;
+    float tmp = fractionTmp < 0 ? turnFactor0+fractionTmp : turnFactor0;
+    turnFactor = tmp <= 0 ? 0 : tmp;
+    Serial.print("turnRight: ");
+    Serial.print(tmp);
+    Serial.print(' ');
+    Serial.println(turnFactor);
     analogWrite(left_motor, lmaxSpeed);
     analogWrite(right_motor, rmaxSpeed*turnFactor);
     digitalWrite(RLED, HIGH); 
     digitalWrite(GLED, LOW); 
     digitalWrite(BLED, LOW); 
-    //delay(100);
 }
 
 void stop()
@@ -89,13 +85,50 @@ void stop()
     digitalWrite(right_motor, LOW); 
     digitalWrite(RLED, HIGH);
     digitalWrite(BLED, HIGH);
-    digitalWrite(GLED, LOW); 
+    digitalWrite(GLED, LOW);
+}
+
+void checkStopPoint()
+{
+    if(stopSigIntv == -1){ //first encounter a black cross strip
+        stopSigIntv = 0;
+    }
+    else if (stopSigIntv == 100){
+        stopSigIntv = 0;
+    }
+    else if(stopSigIntv >= 200){ //check if cross the white space between two black strips
+        stopConst = true;
+    }
+}
+
+void incStopIntv(){
+    if (stopSigIntv != -1){ //a black cross strip has been encountered
+        stopSigIntv += 100;
+        if (stopSigIntv >= 1000){ //beeeeen encountered long before, won't count
+            stopConst = -1;
+        }
+    }
+}
+
+void print3LEDs(){
+    Serial.print(left);
+    Serial.print(' ');
+    Serial.print(middle);
+    Serial.print(' ');
+    Serial.print(right);
+    Serial.println();
+}
+
+void printDiff(){
+    Serial.print(Lreal);
+    Serial.print(' ');
+    Serial.print(Rreal);
+    Serial.println();
 }
 
 // the loop function runs over and over again forever
-void loop() {
-    // analogWrite(left_motor, 128);   // offset 22
-    // analogWrite(right_motor, 150);   
+void loop() 
+{
     left = analogRead(IR1);
     middle = analogRead(IR2);
     right = analogRead(IR3);
@@ -103,13 +136,14 @@ void loop() {
     Lreal = left - middle;
     Rreal = right - middle;
 
-    // int Loffset = abs(Linitial) - abs(Lreal);
-    // int Roffset = abs(Rinitial) - abs(Rreal);
-
-    if(Lreal < thresh && Rreal > thresh){
+    incStopIntv();
+    if (stopConst){
+        stop();
+    }
+    else if(Lreal < thresh && Rreal > thresh){
         turnRight();
     }
-    else if (Lreal > thresh && (Rreal < thresh)){
+    else if (Lreal > thresh && Rreal < thresh){
         turnLeft();
     }
     else if (Lreal > thresh && Rreal > thresh){
@@ -117,15 +151,11 @@ void loop() {
     }
     else{ //both below thresh
         stop();
+        checkStopPoint();
     }
 
-    Serial.print(left);
-    Serial.print(' ');
-    Serial.print(middle);
-    Serial.print(' ');
-    Serial.print(right);
-    Serial.print(' ');
+    print3LEDs();
+    //printDiff();
 
-    Serial.println();
-    //delay(100);
+    delay(70);
 }
