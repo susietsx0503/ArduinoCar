@@ -36,20 +36,21 @@ void slowdown(){
         lspeed_wheel-=1;
     if(!rstop)
         rspeed_wheel-=1;
-    /*Serial.print(lspeed_wheel);
+    Serial.print(lspeed_wheel);
     Serial.print(' ');
-    Serial.println(rspeed_wheel);*/
+    Serial.println(rspeed_wheel);
+    Serial.print(' ');
 }
 
 void check (int* arr, int LorR){
     int first = arr[0];
     int j = 0;
     for(j; j < 20;j++){
-        if (abs(arr[j]-first) > 20){
+        if (abs(arr[j]-first) > 10){
             break;
         }
     }
-    if(j == 19){
+    if(j == 20){
         if(LorR == 0){
             lstop = true;
         }
