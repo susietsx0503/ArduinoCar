@@ -15,7 +15,8 @@ int larr[20];
 int rarr[20];
 int i = 0;
 int lspeed, rspeed;
-bool isstop = false;
+bool lstop = false;
+bool rstop = false;
 
 void setup() {
     Serial.begin(9600);
@@ -29,14 +30,31 @@ void setup() {
 }
 
 void slowdown(){
-    lspeed-=1;
-    rspeed-=1;
+    if(!lstop)
+        lspeed-=1;
+    if(!rstop)
+        rspeed-=1;
 }
 
-void loop(){
-    if(!isstop){
-        slowdown();
+void check (int* arr, int LorR){
+    int first = arr[0];
+    int j = 0;
+    for(j; j < 20;j++){
+        if (abs(larr[j]-lfirst) > 10 || abs(rarr[j]-rfirst)>10){
+            break;
+        }
     }
+    if(j == 20){
+        if(LorR == 0){
+            lstop = true;
+        }
+        else{
+            rstop = true;
+        }
+    }
+}
+
+void recordNewData(){
     lspeed = analogRead(lsensor);
     rspeed = analogRead(rsensor);
     if (i<20){
@@ -51,18 +69,43 @@ void loop(){
         }
         larr[20] = lspeed;
         rarr[20] = rspeed;
-        int lfirst = larr[0];
-        int rfirst = rarr[0];
-        int j = 0;
-        for(j; j < 20;j++){
-            if (abs(larr[j]-lfirst) > 10 || abs(rarr[j]-rfirst)>10){
-                break;
-            }
-        }
-        if(j == 20){
-            isstop = true;
+    }
+}
+
+void flashled(){
+    if(lstop){
+        int tmp = 5;
+        while(tmp!=0){
+            digitalWrite(BLED, HIGH);
+            delay(100);
+            digitalWrite(BLED, LOW);
+            delay(100);
+            tmp--;
         }
     }
-    delay(10);
+    if(rstop){
+        int tmp = 5;
+        while(tmp!=0){
+            digitalWrite(RLED, HIGH);
+            delay(100);
+            digitalWrite(RLED, LOW);
+            delay(100);
+            tmp--;
+        }
+    }
+}
 
+void loop(){
+    slowdown();
+    if (!lstop || !rstop){
+        recordNewData();
+    }
+    if(!lstop){
+        check(larr, 0);
+    }
+    if(!rstop){
+        check(rarr, 1);
+    }
+    flashled();
+    delay(10);
 }
