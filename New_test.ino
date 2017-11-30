@@ -19,7 +19,7 @@ int absLR;
 //int speedOffset = -2; //speed difference between left and right wheers to go straight
 int rmaxSpeed = 255;
 int lmaxSpeed = 255;
-double turnFactor = 0.3;
+double turnFactor = 0;
 
 long aveIR1;  //average value of three IRs when initializing
 long aveIR2;
@@ -104,7 +104,7 @@ void loop() {
 
 
   if (initialState) {
-    if (absLR >= 100) {
+    if (absLR >= 200) {
       if (Lreal < thresh && Rreal > thresh) {
         turnRight();
       }
