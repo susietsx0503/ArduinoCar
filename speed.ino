@@ -8,13 +8,13 @@
 #define rmaxSpeed 255
 #define lmaxSpeed 255
 
-int lspeed = lmaxSpeed;
-int rspeed = rmaxSpeed;
+int lspeed_wheel = lmaxSpeed;
+int rspeed_wheel = rmaxSpeed;
 
+int lspeed, rspeed;
 int larr[20];
 int rarr[20];
 int i = 0;
-int lspeed, rspeed;
 bool lstop = false;
 bool rstop = false;
 
@@ -30,21 +30,26 @@ void setup() {
 }
 
 void slowdown(){
+    analogWrite(left_motor, lspeed_wheel);
+    analogWrite(right_motor, rspeed_wheel);
     if(!lstop)
-        lspeed-=1;
+        lspeed_wheel-=1;
     if(!rstop)
-        rspeed-=1;
+        rspeed_wheel-=1;
+    /*Serial.print(lspeed_wheel);
+    Serial.print(' ');
+    Serial.println(rspeed_wheel);*/
 }
 
 void check (int* arr, int LorR){
     int first = arr[0];
     int j = 0;
     for(j; j < 20;j++){
-        if (abs(larr[j]-lfirst) > 10 || abs(rarr[j]-rfirst)>10){
+        if (abs(arr[j]-first) > 20){
             break;
         }
     }
-    if(j == 20){
+    if(j == 19){
         if(LorR == 0){
             lstop = true;
         }
@@ -57,43 +62,37 @@ void check (int* arr, int LorR){
 void recordNewData(){
     lspeed = analogRead(lsensor);
     rspeed = analogRead(rsensor);
+    Serial.print(lspeed);
+    Serial.print(' ');
+    Serial.print(rspeed);
+    Serial.print(' ');
     if (i<20){
         larr[i] = lspeed;
         rarr[i] = rspeed;
         i++;
     }
-    else{  
-        for (int j = 0; j < 19; i++){
+    else{
+        for (int j = 0; j < 19; j++){
             larr[j] = larr[j+1];
-            rarr[J] = rarr[j+1];
+            rarr[j] = rarr[j+1];
         }
-        larr[20] = lspeed;
-        rarr[20] = rspeed;
+        larr[19] = lspeed;
+        rarr[19] = rspeed;
     }
 }
 
+/*
 void flashled(){
-    if(lstop){
-        int tmp = 5;
-        while(tmp!=0){
-            digitalWrite(BLED, HIGH);
-            delay(100);
-            digitalWrite(BLED, LOW);
-            delay(100);
-            tmp--;
-        }
+    int tmp = 5;
+    while(tmp!=0){
+      
+        digitalWrite(BLED, HIGH);
+        delay(100);
+        digitalWrite(BLED, LOW);
+        delay(100);
+        tmp--;
     }
-    if(rstop){
-        int tmp = 5;
-        while(tmp!=0){
-            digitalWrite(RLED, HIGH);
-            delay(100);
-            digitalWrite(RLED, LOW);
-            delay(100);
-            tmp--;
-        }
-    }
-}
+}*/
 
 void loop(){
     slowdown();
@@ -106,6 +105,11 @@ void loop(){
     if(!rstop){
         check(rarr, 1);
     }
-    flashled();
-    delay(10);
+    Serial.print(' ');
+    Serial.print(lstop);
+    Serial.print(' ');
+    Serial.print(rstop);
+    Serial.println();
+    //flashled();
+    delay(50);
 }
